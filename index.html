@@ -39,21 +39,33 @@
 
   <p id="status"></p>
 
-  <!-- Booking logic -->
-  <script type="module">
-    import { db } from "./firebase.js";
-    import { collection, addDoc, query, where, getDocs } 
-      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+  <!-- Firebase compat scripts -->
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore-compat.js"></script>
+
+  <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID",
+      measurementId: "YOUR_MEASUREMENT_ID"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
     async function checkConflicts(space, start, end) {
-      const bookingsRef = collection(db, "bookings");
-      const q = query(
-        bookingsRef,
-        where("space_name", "in", [space, "Full House"]),
-        where("start_time", "<", end.toISOString()),
-        where("end_time", ">", start.toISOString())
-      );
-      const snapshot = await getDocs(q);
+      const snapshot = await db.collection("bookings")
+        .where("space_name", "in", [space, "Full House"])
+        .where("start_time", "<", end.toISOString())
+        .where("end_time", ">", start.toISOString())
+        .get();
       return !snapshot.empty;
     }
 
@@ -61,7 +73,6 @@
       const start = new Date(`${date}T${time}`);
       const end = new Date(start.getTime() + dur * 3600000 + 15 * 60000);
 
-      // Operating hours: 9:00 AM – 12:00 AM
       const opening = new Date(`${date}T09:00`);
       const closing = new Date(`${date}T23:59`);
 
@@ -77,7 +88,7 @@
         return;
       }
 
-      await addDoc(collection(db, "bookings"), {
+      await db.collection("bookings").add({
         client_name: name,
         space_name: space,
         start_time: start.toISOString(),

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leish Studio Booking</title>
+</head>
+<body>
+  <h1>Leish Studio Booking</h1>
+
+  <form id="bookingForm">
+    <label for="muaName">MUA Name:</label>
+    <input type="text" id="muaName" required>
+
+    <label for="spaceSelect">Select Space:</label>
+    <select id="spaceSelect" required>
+      <option value="Station A">Station A</option>
+      <option value="Station B">Station B</option>
+      <option value="Upper Loft">Upper Loft</option>
+      <option value="Full House">Full House</option>
+    </select>
+
+    <label for="bookDate">Date:</label>
+    <input type="date" id="bookDate" required>
+
+    <label for="bookTime">Time:</label>
+    <input type="time" id="bookTime" required>
+
+    <label for="duration">Duration (hours):</label>
+    <select id="duration" required>
+      <option value="1">1 hour</option>
+      <option value="2">2 hours</option>
+      <option value="4">4 hours</option>
+      <option value="8">8 hours</option>
+    </select>
+
+    <button type="submit">Reserve</button>
+  </form>
+
+  <p id="status"></p>
+
+  <!-- Firebase SDK (v9 modular imports) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    // ✅ Replace with your Firebase config
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "your-project.firebaseapp.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    async function checkConflicts(space, start, end) {
+      const bookingsRef = collection(db, "bookings");
+      const q = query(
+        bookingsRef,
+        where("space_name", "in", [space, "Full House"]),
+        where("start_time", "<", end.toISOString()),
+        where("end_time", ">", start.toISOString())
+      );
+      const snapshot = await getDocs(q);
+      return !snapshot.empty;
+    }
+
+    async function handleBooking({ name, space, date, time, dur }) {
+      const start = new Date(`${date}T${time}`);
+      const end = new Date(start.getTime() + dur * 3600000 + 15 * 60000);
+
+      // Operating hours: 9:00 AM – 12:00 AM
+      const opening = new Date(`${date}T09:00`);
+      const closing = new Date(`${date}T23:59`);
+
+      if (start < opening || start > closing) {
+        document.getElementById("status").textContent =
+          "❌ Bookings only allowed between 9:00 AM and 12:00 AM.";
+        return;
+      }
+
+      const conflict = await checkConflicts(space, start, end);
+      if (conflict) {
+        document.getElementById("status").textContent = "❌ Slot Occupied.";
+        return;
+      }
+
+      await addDoc(collection(db, "bookings"), {
+        client_name: name,
+        space_name: space,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        created_at: new Date().toISOString(),
+        status: "confirmed"
+      });
+
+      document.getElementById("status").textContent =
+        "✅ Booking confirmed!";
+    }
+
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("muaName").value;
+      const space = document.getElementById("spaceSelect").value;
+      const date = document.getElementById("bookDate").value;
+      const time = document.getElementById("bookTime").value;
+      const dur = parseInt(document.getElementById("duration").value, 10);
+
+      await handleBooking({ name, space, date, time, dur });
+    });
+  </script>
+</body>
+</html>

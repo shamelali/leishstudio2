@@ -1,0 +1,33 @@
+:root {
+  --cream: #F5F5DC;
+  --gold: #C9A045;
+  --steel: #2C2C2C;
+  --bg-dark: #0a0a0a;
+  --bg-card: #111111;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Montserrat', sans-serif; background: #f8f8f6; color: var(--steel); }
+
+.admin-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 24px; background: var(--cream); border-bottom: 1px solid var(--steel);
+}
+.logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; letter-spacing: 2px; font-weight: bold; }
+.admin-nav a, .admin-nav button { margin-left: 16px; text-decoration: none; color: var(--steel); border: 1px solid var(--steel); background: transparent; padding: 6px 10px; cursor: pointer; }
+
+.admin-main { padding: 24px; max-width: 1200px; margin: 0 auto; }
+
+.kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 16px; }
+.kpi-card { background: white; border: 1px solid #ddd; border-left: 4px solid var(--gold); padding: 16px; }
+.kpi-card h3 { font-family: 'Playfair Display', serif; margin-bottom: 8px; font-size: 1.1rem; }
+.kpi-card p { font-size: 1.2rem; }
+
+.filters { display: flex; gap: 12px; align-items: end; margin-bottom: 16px; }
+.filters label { display: flex; flex-direction: column; font-size: 0.9rem; }
+.filters input, .filters select { padding: 8px; border: 1px solid #ccc; }
+
+.table-wrap { background: white; border: 1px solid #ddd; }
+.admin-table { width: 100%; border-collapse: collapse; }
+.admin-table th, .admin-table td { padding: 10px; border-bottom: 1px solid #eee; font-size: 0.95rem; }
+.admin-table th { text-align: left; background: #f6f3e8; }

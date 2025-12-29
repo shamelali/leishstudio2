@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- BOOKINGS ---
+    match /bookings/{docId} {
+      // Anyone can read bookings (availability check)
+      allow read: if true;
+
+      // Only authenticated users can create bookings
+      allow create: if request.auth != null;
+
+      // Only managers can update or delete
+      allow update, delete: if request.auth != null && request.auth.token.role == "manager";
+    }
+
+    // --- FEEDBACK ---
+    match /feedback/{docId} {
+      // Only authenticated users can submit feedback
+      allow create: if request.auth != null;
+
+      // Only managers can read feedback
+      allow read: if request.auth != null && request.auth.token.role == "manager";
+    }
+
+    // --- PRICING ---
+    match /pricing/{docId} {
+      // Public can read pricing
+      allow read: if true;
+
+      // Only managers can update pricing
+      allow write: if request.auth != null && request.auth.token.role == "manager";
+    }
+
+    // --- MANAGERS ---
+    match /managers/{docId} {
+      // Only authenticated managers can read/write
+      allow read, write: if request.auth != null && request.auth.token.role == "manager";
+    }
+  }
+}

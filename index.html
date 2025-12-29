@@ -39,25 +39,11 @@
 
   <p id="status"></p>
 
-  <!-- Firebase SDK (v9 modular imports) -->
+  <!-- Booking logic -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-    // ✅ Replace with your Firebase config
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "your-project.firebaseapp.com",
-      projectId: "your-project-id",
-      storageBucket: "your-project.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    import { db } from "./firebase.js";
+    import { collection, addDoc, query, where, getDocs } 
+      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
     async function checkConflicts(space, start, end) {
       const bookingsRef = collection(db, "bookings");
@@ -100,8 +86,7 @@
         status: "confirmed"
       });
 
-      document.getElementById("status").textContent =
-        "✅ Booking confirmed!";
+      document.getElementById("status").textContent = "✅ Booking confirmed!";
     }
 
     document.getElementById("bookingForm").addEventListener("submit", async (e) => {

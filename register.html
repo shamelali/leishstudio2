@@ -14,12 +14,9 @@
   <p id="status"></p>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-
-    const firebaseConfig = { /* your config */ };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    import { auth } from "./firebase.js";
+    import { createUserWithEmailAndPassword } 
+      from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
     document.getElementById("registerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
